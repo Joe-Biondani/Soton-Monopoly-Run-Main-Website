@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>SMR - Manage Places</title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://gitcdn.link/cdn/Joe-Biondani/Monopoly-Run-Soton-Website/main/staff/manageplaces/style.css" />
+        <link rel="shortcut icon" type="image/x-icon" href="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/favicon.ico?v=1658047392905">
+    </head>
+
+    <body>
+        <nav>
+            <img src="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/Smaller.png?v=1658003285975" class="logo" />
+
+            <div class="links">
+                <a class="header-link" href="/staff/dashboard">STAFF DASHBOARD</a>
+                <a class="header-link" href="/staff/manageusers">USERS</a>
+                <a class="header-link" href="/staff/leaderboard">LEADERBOARD</a>
+                <a class="header-link" href="/staff/managestaff">STAFF</a>
+                <a class="header-link selected-page-link" href="/staff/manageplaces">PLACES</a>
+                <a class="header-link" href="/logout">LOGOUT</a>
+            </div>
+        </nav>
+
+        <main>
+            <div class="title-container">
+                <h1 id="welcome" class="purple-title">Manage Places</h1>
+            </div>
+
+            <div class="find-form">
+                <input id="find-place-name" placeholder="Place Name">
+                <button class="find-button" id="find-btn">FIND</button>
+            </div>
+
+            <div class="user-info">
+                <br><br><br>
+                <h4 id="cur-place-name">PLACE NAME: </h4>
+                <input id="place-name" placeholder="New value">
+                <br><br><br>
+                <h4 id="cur-bp">BUY PRICE: </h4>
+                <input id="bp" placeholder="New value">
+                <br><br><br>
+                <h4 id="cur-rp">RENT PRICE: </h4>
+                <input id="rp" placeholder="New value">
+                <br><br><br>
+                <h4 id="cur-img">IMG LINK: </h4>
+                <input id="img" placeholder="New value">
+                <br><br><br>
+                <h4 id="cur-long">LONG: </h4>
+                <input id="long" placeholder="New value">
+                <br><br><br>
+                <h4 id="cur-lat">LAT: </h4>
+                <input id="lat" placeholder="New value">
+                <br><br><br>
+                <button class="button" id="new-btn">NEW</button>
+                <button class="button" id="del-btn">DELETE</button>
+            </div>
+        </main>
+
+        <footer>
+            <h2 class="nfp">
+                This is a not-for-profit event, and all money raised is put back into
+                app development/maintenance, upgrading systems and general
+                administrative services
+            </h2>
+            <h2 class="copyright">
+                HASBRO, PARKER BROTHERS, Tonka, Waddington's, the MONOPOLY name and
+                logo, the distinctive design of the game board, the four corner squares,
+                the MR. MONOPOLY name and character, as well as each of the distinctive
+                elements of the board and playing pieces, are trademarks of Hasbro for
+                its property trading game and game equipment. © 1935, 2012 Hasbro.
+            </h2>
+        </footer>
+
+        <script>
+            // CHECK LOGIN
+            function getCookie(cname) {
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            let cookie = getCookie("token");
+            fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/checkIfLoggedInStaff', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "token": cookie,
+                })
+            }).then(result => {
+                result.json().then(res => {
+                    if (res.status != "ok") {
+                        // window.location = "/login"
+                        console.log(res)
+                    }
+                })
+            }).catch((e) => {
+                // window.location = "/login"
+                console.log(e)
+            })
+        </script>
+
+        <script>
+            const findInput = document.getElementById("find-place-name")
+            const findButton = document.getElementById("find-btn")
+
+            const curPN = document.getElementById("cur-place-name")
+            const curBP = document.getElementById("cur-bp")
+            const curRP = document.getElementById("cur-rp")
+            const curIMG = document.getElementById("cur-img")
+            const curLong = document.getElementById("cur-long")
+            const curLat = document.getElementById("cur-lat")
+
+            const PNinput = document.getElementById("place-name")
+            const BPinput = document.getElementById("bp")
+            const RPinput = document.getElementById("rp")
+            const img = document.getElementById("img")
+
+            findButton.onclick = function() {
+                fetch('https://Soton-Monopoly-Run-Places-API.aviationjoe.repl.co/getPlaceInfo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "placeName": findInput.value,
+                    })
+                }).then(result => {
+                    result.json().then(res => {
+                        if (res.status == 'ok') {
+                            curPN.innerText = "PLACE NAME: " + res.data.PlaceName
+                            curBP.innerText = "BUY PRICE: " + res.data.BuyPrice
+                            curRP.innerText = "RENT PRICE: " + res.data.RentPrice
+                            curIMG.innerText = "IMG LINK: " + res.data.Image
+                            curLong.innerText = "LONG: " + res.data.Long
+                            curLat.innerText = "LAT: " + res.data.Lat
+                        } else {
+                            alert("An error occurred!\n\n" + res.error)
+                            console.log(res.error)
+                            curPN.innerText = "PLACE NAME: FAILED"
+                            curBP.innerText = "BUY PRICE: FAILED"
+                            curRP.innerText = "RENT PRICE: FAILED"
+                            curIMG.innerText = "IMG LINK: FAILED"
+                            curLong.innerText = "LONG: FAILED"
+                            curLat.innerText = "LAT: FAILED"
+                        }
+                    })
+                }).catch((error) => {
+                    console.log(error)
+                    curPN.innerText = "PLACE NAME: FAILED"
+                    curBP.innerText = "BUY PRICE: FAILED"
+                    curRP.innerText = "RENT PRICE: FAILED"
+                    curIMG.innerText = "IMG LINK: FAILED"
+                    curLong.innerText = "LONG: FAILED"
+                    curLat.innerText = "LAT: FAILED"
+                })
+            }
+
+            document.getElementById("new-btn").onclick = function() {
+                -fetch('https://Soton-Monopoly-Run-Places-API.aviationjoe.repl.co/newPlace', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "placeName": PNinput.value,
+                        "buyPrice": BPinput.value,
+                        "rentPrice": RPinput.value,
+                        "img": img.value,
+                        "long": long.value,
+                        "lat": lat.value
+                    })
+                }).then(result => {
+                    result.json().then(res1 => {
+                        if (res1.status == 'ok') {
+                            fetch('https://Soton-Monopoly-Run-Places-API.aviationjoe.repl.co/getPlaceInfo', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    "placeName": PNinput.value,
+                                })
+                            }).then(result => {
+                                result.json().then(res => {
+                                    if (res.status == 'ok') {
+                                        curPN.innerText = "PLACE NAME: " + res.data.PlaceName
+                                        curBP.innerText = "BUY PRICE: " + res.data.BuyPrice
+                                        curRP.innerText = "RENT PRICE: " + res.data.RentPrice
+                                        curIMG.innerText = "IMG LINK: " + res.data.Image
+                                        curLong.innerText = "LONG: " + res.data.Long
+                                        curLat.innerText = "LAT: " + res.data.Lat
+                                    } else {
+                                        alert("An error occurred!\n\n" + res.error)
+                                        console.log(res.error)
+                                        curPN.innerText = "PLACE NAME: FAILED"
+                                        curBP.innerText = "BUY PRICE: FAILED"
+                                        curRP.innerText = "RENT PRICE: FAILED"
+                                        curLong.innerText = "LONG: FAILED"
+                                        curLat.innerText = "LAT: FAILED"
+                                        curIMG.innerText = "IMG LINK: FAILED"
+                                    }
+                                })
+                            }).catch((error) => {
+                                console.log(error)
+                                curPN.innerText = "PLACE NAME: FAILED"
+                                curBP.innerText = "BUY PRICE: FAILED"
+                                curRP.innerText = "RENT PRICE: FAILED"
+                                curIMG.innerText = "IMG LINK: FAILED"
+                                curLong.innerText = "LONG: FAILED"
+                                curLat.innerText = "LAT: FAILED"
+                            })
+                        } else {
+                            alert("An error occurred!\n\n" + res1.error)
+                            console.log(res1.error)
+                            curPN.innerText = "PLACE NAME: FAILED"
+                            curBP.innerText = "BUY PRICE: FAILED"
+                            curRP.innerText = "RENT PRICE: FAILED"
+                            curIMG.innerText = "IMG LINK: FAILED"
+                            curLong.innerText = "LONG: FAILED"
+                            curLat.innerText = "LAT: FAILED"
+                        }
+                    })
+                }).catch((error) => {
+                    console.log(error)
+                    curPN.innerText = "PLACE NAME: FAILED"
+                    curBP.innerText = "BUY PRICE: FAILED"
+                    curRP.innerText = "RENT PRICE: FAILED"
+                    curLong.innerText = "LONG: FAILED"
+                    curLat.innerText = "LAT: FAILED"
+                })
+            }
+
+            document.getElementById("del-btn").onclick = function() {
+                fetch('https://Soton-Monopoly-Run-Places-API.aviationjoe.repl.co/deletePlace', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "placeName": findInput.value,
+                    })
+                }).then(result => {
+                    result.json().then(res => {
+                        if (res.status == 'ok') {
+                            findInput.value = ""
+                            curPN.innerText = "PLACE NAME: "
+                            curBP.innerText = "BUY PRICE: "
+                            curRP.innerText = "RENT PRICE: "
+                            curIMG.innerText = "IMG LINK: "
+                            curLong.innerText = "LONG: "
+                            curLat.innerText = "LAT: "
+                        } else {
+                            alert("An error occurred!\n\n" + res.error)
+                            console.log(res.error)
+                            curPN.innerText = "PLACE NAME: FAILED"
+                            curBP.innerText = "BUY PRICE: FAILED"
+                            curRP.innerText = "RENT PRICE: FAILED"
+                            curIMG.innerText = "IMG LINK: FAILED"
+                            curLong.innerText = "LONG: FAILED"
+                            curLat.innerText = "LAT: FAILED"
+                        }
+                    })
+                }).catch((error) => {
+                    console.log(error)
+                    curPN.innerText = "PLACE NAME: FAILED"
+                    curBP.innerText = "BUY PRICE: FAILED"
+                    curLong.innerText = "LONG: FAILED"
+                    curLat.innerText = "LAT: FAILED"
+                    curIMG.innerText = "IMG LINK: FAILED"
+                    curRP.innerText = "RENT PRICE: FAILED"
+                })
+            }
+        </script>
+    </body>
+
+</html>

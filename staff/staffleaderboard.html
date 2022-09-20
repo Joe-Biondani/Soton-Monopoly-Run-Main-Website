@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>SMR - Leaderboard</title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://gitcdn.link/cdn/Joe-Biondani/Monopoly-Run-Soton-Website/main/staff/leaderboard/style.css" />
+        <link rel="shortcut icon" type="image/x-icon" href="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/favicon.ico?v=1658047392905">
+    </head>
+
+    <body>
+        <nav>
+            <img src="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/Smaller.png?v=1658003285975" class="logo" />
+
+            <div class="links">
+                <a class="header-link" href="/staff/dashboard">STAFF DASHBOARD</a>
+                <a class="header-link" href="/staff/manageusers">USERS</a>
+                <a class="header-link selected-page-link" href="/staff/leaderboard">LEADERBOARD</a>
+                <a class="header-link" href="/staff/managestaff">STAFF</a>
+                <a class="header-link" href="/staff/manageplaces">PLACES</a>
+                <a class="header-link" href="/logout">LOGOUT</a>
+            </div>
+        </nav>
+
+        <main id="main">
+            <div class="title-container">
+                <h1 class="purple-title">Leaderboard</h1>
+            </div>
+
+            <table id="table">
+                <tr>
+                    <th class="place">Place</th>
+                    <th class="teamname">Team Name</th>
+                    <th class="money">Money</th>
+                </tr>
+                <tr class="item">
+                    <td class="place">Place</td>
+                    <td class="teamname">Team Name</td>
+                    <td class="money">Money</td>
+                </tr>
+            </table>
+        </main>
+
+        <footer>
+            <h2 class="nfp">
+                This is a not-for-profit event, and all money raised is put back into
+                app development/maintenance, upgrading systems and general
+                administrative services
+            </h2>
+            <h2 class="copyright">
+                HASBRO, PARKER BROTHERS, Tonka, Waddington's, the MONOPOLY name and
+                logo, the distinctive design of the game board, the four corner squares,
+                the MR. MONOPOLY name and character, as well as each of the distinctive
+                elements of the board and playing pieces, are trademarks of Hasbro for
+                its property trading game and game equipment. © 1935, 2012 Hasbro.
+            </h2>
+        </footer>
+
+        <script>
+            let id
+            // CHECK LOGIN
+            function getCookie(cname) {
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            let cookie = getCookie("token");
+            fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/checkIfLoggedInStaff', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "token": cookie,
+                })
+            }).then(result => {
+                result.json().then(res => {
+                    if (res.status != "ok") {
+                        window.location = "/login"
+                    }
+                })
+            }).catch(() => {
+                window.location = "/login"
+            })
+        </script>
+        <script>
+            let objectToClone = document.getElementsByClassName("item")[0]
+            objectToClone.style.setProperty("display", "none")
+
+            fetch('https://Soton-Monopoly-Run-Game-API.aviationjoe.repl.co/getLeaderboard', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(result => {
+                result.json().then(res => {
+                    console.log(res.data)
+
+                    for (var i = 0; i < res.data.length; i++) {
+                        let data = res.data[i]
+                        let cloned = objectToClone.cloneNode(true)
+                        document.getElementById("table").getElementsByTagName("tbody")[0].appendChild(cloned)
+                        cloned.style.setProperty("display", "")
+                        cloned.getElementsByClassName("place")[0].innerText = i + 1
+                        cloned.getElementsByClassName("teamname")[0].innerText = data.TeamName
+                        cloned.getElementsByClassName("money")[0].innerText = data.Money
+
+                        console.log(i)
+                        if ((i + 1) == res.data.length) {
+                            console.log("OK")
+                            cloned.getElementsByClassName("place")[0].style = "border-bottom-left-radius: 10px;"
+                            cloned.getElementsByClassName("money")[0].style = "border-bottom-right-radius: 10px;"
+                            console.log("OK")
+                        }
+                    }
+                })
+            }).catch(console.log)
+        </script>
+    </body>
+
+</html>

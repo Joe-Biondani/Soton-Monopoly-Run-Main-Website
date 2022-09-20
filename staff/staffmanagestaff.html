@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>SMR - Dashboard</title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://gitcdn.link/cdn/Joe-Biondani/Monopoly-Run-Soton-Website/main/staff/managestaff/style.css" />
+        <link rel="shortcut icon" type="image/x-icon" href="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/favicon.ico?v=1658047392905">
+    </head>
+
+    <body>
+        <nav>
+            <img src="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/Smaller.png?v=1658003285975" class="logo" />
+
+            <div class="links">
+                <a class="header-link" href="/staff/dashboard">STAFF DASHBOARD</a>
+                <a class="header-link" href="/staff/manageusers">USERS</a>
+                <a class="header-link" href="/staff/leaderboard">LEADERBOARD</a>
+                <a class="header-link selected-page-link" href="/staff/managestaff">STAFF</a>
+                <a class="header-link" href="/staff/manageplaces">PLACES</a>
+                <a class="header-link" href="/logout">LOGOUT</a>
+            </div>
+        </nav>
+
+        <main>
+            <div class="title-container">
+                <h1 id="welcome" class="purple-title">Manage Staff</h1>
+            </div>
+
+            <div class="find-form">
+                <input id="find-user-id" placeholder="User ID">
+                <button class="find-button" id="find-btn">FIND</button>
+            </div>
+
+            <div class="user-info">
+                <br><br><br>
+                <h4 id="cur-user-id">USER ID: </h4>
+                <input id="user-id" placeholder="New value (DO NOT USE ON NEW USER)">
+                <br><br><br>
+                <h4 id="cur-team-name">TEAM NAME: </h4>
+                <input id="team-name" placeholder="New value">
+                <br><br><br>
+                <h4 id="cur-email">EMAIL: </h4>
+                <input id="email" placeholder="New value">
+                <br><br><br>
+                <h4 id="cur-password">PASSWORD: </h4>
+                <input id="password" placeholder="New value">
+                <br><br><br>
+                <h4 id="cur-cusers">CREATE USERS: </h4>
+                <input id="c-users" type="checkbox">
+                <br><br><br>
+                <h4 id="cur-ausers">ACCESS USERS: </h4>
+                <input id="a-users" type="checkbox">
+                <br><br><br>
+                <h4 id="cur-cstaff">CREATE STAFF: </h4>
+                <input id="c-staff" type="checkbox">
+                <br>
+                <button class="button" id="save-btn">SAVE</button>
+                <button class="button" id="del-btn">DELETE</button>
+                <button class="button" id="new-btn">NEW</button>
+            </div>
+        </main>
+
+        <footer>
+            <h2 class="nfp">
+                This is a not-for-profit event, and all money raised is put back into
+                app development/maintenance, upgrading systems and general
+                administrative services
+            </h2>
+            <h2 class="copyright">
+                HASBRO, PARKER BROTHERS, Tonka, Waddington's, the MONOPOLY name and
+                logo, the distinctive design of the game board, the four corner squares,
+                the MR. MONOPOLY name and character, as well as each of the distinctive
+                elements of the board and playing pieces, are trademarks of Hasbro for
+                its property trading game and game equipment. © 1935, 2012 Hasbro.
+            </h2>
+        </footer>
+
+        <script>
+            // CHECK LOGIN
+            function getCookie(cname) {
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            let cookie = getCookie("token");
+            fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/checkIfLoggedInStaff', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "token": cookie,
+                })
+            }).then(result => {
+                result.json().then(res => {
+                    if (res.status != "ok") {
+                        window.location = "/login"
+                    } else {
+
+                    }
+                })
+            }).catch(() => {
+                window.location = "/login"
+            })
+        </script>
+
+        <script>
+            // FIND USER
+            const findID = document.getElementById("find-user-id")
+            const findBtn = document.getElementById("find-btn")
+
+            const curUserID = document.getElementById("cur-user-id")
+            const curTeamName = document.getElementById("cur-team-name")
+            const curEmail = document.getElementById("cur-email")
+            const curPass = document.getElementById("cur-password")
+            const curCUsers = document.getElementById("cur-cusers")
+            const curAUsers = document.getElementById("cur-ausers")
+            const curCStaff = document.getElementById("cur-cstaff")
+
+            findBtn.onclick = function() {
+                fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/checkIfLoggedInStaff', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "token": cookie,
+                    })
+                }).then(result => {
+                    result.json().then(res1 => {
+                        if (res1.status != "ok") {
+                            window.location = "/staff/dashboard"
+                        } else {
+                            if (res1.data.Perms.CreateStaff || res1.Data.Perms.AllPerms) {
+                                if (findID.value.length >= 1) {
+                                    fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/getUser', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            "ID": findID.value,
+                                        })
+                                    }).then(result => {
+                                        result.json().then(res => {
+                                            if (res.status != "ok") {
+                                                console.log(res.error)
+                                                curUserID.innerText = "USER ID: FAILED"
+                                                curTeamName.innerText = "TEAM NAME: FAILED"
+                                                curEmail.innerText = "EMAIL: FAILED"
+                                                curPass.innerText = "PASSWORD: FAILED"
+                                                curCUsers.innerText = "CREATE USERS: FAILED"
+                                                curAUsers.innerText = "ACCESS USERS: FAILED"
+                                                curCStaff.innerText = "CREATE STAFF: FAILED"
+                                            } else {
+                                                if (res.data.user.Staff == false) {
+                                                    curUserID.innerText = "USER ID: NOT STAFF"
+                                                    curTeamName.innerText = "TEAM NAME: NOT STAFF"
+                                                    curEmail.innerText = "EMAIL: NOT STAFF"
+                                                    curPass.innerText = "PASSWORD: NOT STAFF"
+                                                    curCUsers.innerText = "CREATE USERS: NOT STAFF"
+                                                    curAUsers.innerText = "ACCESS USERS: NOT STAFF"
+                                                    curCStaff.innerText = "CREATE STAFF: NOT STAFF"
+                                                }
+                                                console.log(res)
+                                                curUserID.innerText = "USER ID: " + res.data.user.UserID
+                                                curTeamName.innerText = "TEAM NAME: " + res.data.user.TeamName
+                                                curEmail.innerText = "EMAIL: " + res.data.user.Email
+                                                curPass.innerText = "PASSWORD: PRIVATE"
+                                                curCUsers.innerText = "CREATE USERS: " + res.data.user.Perms.CreateUsers
+                                                curAUsers.innerText = "ACCESS USERS: " + res.data.user.Perms.AccessUsers
+                                                curCStaff.innerText = "CREATE STAFF: " + res.data.user.Perms.CreateStaff
+                                            }
+                                        })
+                                    }).catch((error) => {
+                                        console.log(error)
+                                        curUserID.innerText = "USER ID: FAILED"
+                                        curTeamName.innerText = "TEAM NAME: FAILED"
+                                        curEmail.innerText = "EMAIL: FAILED"
+                                        curPass.innerText = "PASSWORD: FAILED"
+                                        curCUsers.innerText = "CREATE USERS: FAILED"
+                                        curAUsers.innerText = "ACCESS USERS: FAILED"
+                                        curCStaff.innerText = "CREATE STAFF: FAILED"
+                                    })
+                                }
+                            } else {
+                                window.location = "/staff/dashboard"
+                            }
+                        }
+                    })
+                }).catch(() => {
+                    window.location = "/login"
+                })
+            }
+        </script>
+        <script>
+            // UPDATE USER
+            const cUserID = document.getElementById("find-user-id")
+            const userID = document.getElementById("user-id")
+            const teamName = document.getElementById("team-name")
+            const email = document.getElementById("email")
+            const pass = document.getElementById("password")
+            const cusers = document.getElementById("c-users")
+            const ausers = document.getElementById("a-users")
+            const cstaff = document.getElementById("c-staff")
+            const saveBtn = document.getElementById("save-btn")
+            const delBtn = document.getElementById("del-btn")
+            const newBtn = document.getElementById("new-btn")
+
+            delBtn.onclick = function() {
+                fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/checkIfLoggedInStaff', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "token": cookie,
+                    })
+                }).then(result => {
+                    result.json().then(res1 => {
+                        if (res1.status != "ok") {
+                            window.location = "/staff/dashboard"
+                        } else {
+                            if (res1.data.Perms.CreateStaff || res1.Data.Perms.AllPerms) {
+                                fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/deleteParticipant', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        "ID": cUserID.value,
+                                    })
+                                }).then(result => {
+                                    result.json().then(res => {
+                                        if (res.status != "ok") {
+                                            console.log("Failed")
+                                        } else {
+                                            cUserID.value = ""
+                                            curUserID.innerText = "USER ID: "
+                                            curTeamName.innerText = "TEAM NAME: "
+                                            curEmail.innerText = "EMAIL: "
+                                            curPass.innerText = "PASSWORD: "
+                                            curCUsers.innerText = "CREATE USERS: "
+                                            curAUsers.innerText = "ACCESS USERS: "
+                                            curCStaff.innerText = "CREATE STAFF: "
+                                            console.log(res)
+                                        }
+                                    })
+                                }).catch(() => {
+                                    console.log("Failed")
+                                })
+                            } else {
+                                window.location = "/staff/dashboard"
+                            }
+                        }
+                    })
+                }).catch(() => {
+                    window.location = "/login"
+                })
+            }
+
+            newBtn.onclick = function() {
+                fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/checkIfLoggedInStaff', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "token": cookie,
+                    })
+                }).then(result => {
+                    result.json().then(res1 => {
+                        if (res1.status != "ok") {
+                            window.location = "/staff/dashboard"
+                        } else {
+                            if (res1.data.Perms.CreateStaff || res1.Data.Perms.AllPerms) {
+                                fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/newStaff', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        "teamName": teamName.value,
+                                        "email": email.value,
+                                        "password": password.value,
+                                        "cusers": cusers.value,
+                                        "ausers": ausers.value,
+                                        "cstaff": cstaff.value
+                                    })
+                                }).then(result => {
+                                    result.json().then(res => {
+                                        if (res.status != "ok") {
+                                            console.log("Failed")
+                                            console.log(res.error)
+                                        } else {
+                                            cUserID.value = res.data
+                                            console.log(res)
+                                        }
+                                    })
+                                }).catch(() => {
+                                    console.log("Failed")
+                                })
+                            } else {
+                                window.location = "/staff/dashboard"
+                            }
+                        }
+                    })
+                }).catch(() => {
+                    window.location = "/login"
+                })
+
+            }
+
+
+            saveBtn.onclick = function() {
+                fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/editUser', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "curID": cUserID.value,
+                        "ID": userID.value,
+                        "teamName": teamName.value,
+                        "email": email.value,
+                        "password": password.value,
+                        "cuser": cusers.value,
+                        "auser": ausers.value,
+                        "cstaff": cstaff.value,
+                    })
+                }).then(result => {
+                    result.json().then(res => {
+                        if (res.status != "ok") {
+                            curUserID.innerText = "USER ID: FAILED"
+                            curTeamName.innerText = "TEAM NAME: FAILED"
+                            curEmail.innerText = "EMAIL: FAILED"
+                            curPass.innerText = "PASSWORD: FAILED"
+                            curCUsers.innerText = "CREATE USERS: FAILED"
+                            curAUsers.innerText = "ACCESS USERS: FAILED"
+                            curCStaff.innerText = "CREATE STAFF: FAILED"
+                        } else {
+                            cUserID.value = userID.value
+                            console.log(res)
+                            fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/getUser', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    "ID": userID.value,
+                                })
+                            }).then(result => {
+                                result.json().then(res2 => {
+                                    if (res2.status != "ok") {
+                                        curUserID.innerText = "USER ID: FAILED"
+                                        curTeamName.innerText = "TEAM NAME: FAILED"
+                                        curEmail.innerText = "EMAIL: FAILED"
+                                        curPass.innerText = "PASSWORD: FAILED"
+                                        curCUsers.innerText = "CREATE USERS: FAILED"
+                                        curAUsers.innerText = "ACCESS USERS: FAILED"
+                                        curCStaff.innerText = "CREATE STAFF: FAILED"
+                                    } else {
+                                        console.log(res2)
+                                        curUserID.innerText = "USER ID: " + res2.data.user.UserID
+                                        curTeamName.innerText = "TEAM NAME: " + res2.data.user.TeamName
+                                        curEmail.innerText = "EMAIL: " + res2.data.user.Email
+                                        curPass.innerText = "PASSWORD: PRIVATE"
+                                        curCUsers.innerText = "CREATE USERS: " + res2.data.user.Perms.CreateUsers
+                                        curAUsers.innerText = "ACCESS USERS: " + res2.data.user.Perms.AccessUsers
+                                        curCStaff.innerText = "CREATE STAFF: " + res2.data.user.Perms.CreateStaff
+                                    }
+                                })
+                            }).catch(() => {
+                                curUserID.innerText = "USER ID: FAILED"
+                                curTeamName.innerText = "TEAM NAME: FAILED"
+                                curEmail.innerText = "EMAIL: FAILED"
+                                curPass.innerText = "PASSWORD: FAILED"
+                                curCUsers.innerText = "CREATE USERS: FAILED"
+                                curAUsers.innerText = "ACCESS USERS: FAILED"
+                                curCStaff.innerText = "CREATE STAFF: FAILED"
+                            })
+                        }
+                    })
+                }).catch(() => {
+                    curUserID.innerText = "USER ID: FAILED"
+                    curTeamName.innerText = "TEAM NAME: FAILED"
+                    curEmail.innerText = "EMAIL: FAILED"
+                    curPass.innerText = "PASSWORD: FAILED"
+                    curCUsers.innerText = "CREATE USERS: FAILED"
+                    curAUsers.innerText = "ACCESS USERS: FAILED"
+                    curCStaff.innerText = "CREATE STAFF: FAILED"
+                })
+            }
+        </script>
+    </body>
+
+</html>
