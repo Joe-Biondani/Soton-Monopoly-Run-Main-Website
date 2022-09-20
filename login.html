@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>SMR - Login</title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://gitcdn.link/cdn/Joe-Biondani/Monopoly-Run-Soton-Website/main/login/style.css" />
+        <link rel="shortcut icon" type="image/x-icon" href="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/favicon.ico?v=1658047392905">
+    </head>
+
+    <body>
+        <nav>
+            <img src="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/Smaller.png?v=1658003285975" class="logo" />
+
+            <div class="links">
+                <a class="header-link" href="/home">HOME</a>
+                <a class="header-link" href="/about">ABOUT</a>
+                <a class="header-link" href="/howitworks">HOW IT WORKS</a>
+                <a class="header-link" href="/entry">ENTRY</a>
+                <a class="header-link" href="/contact">CONTACT</a>
+                <a class="header-link selected-page-link" href="/login">LOGIN</a>
+            </div>
+        </nav>
+
+        <main>
+            <h1 class="purple-title">Login</h1>
+
+            <div class="type-select" id="type-sel">
+                <h3>Please select who you are:</h3>
+                <button class="type-button" id="part-btn">Participant</button>
+                <br>
+                <button class="type-button" id="staff-btn">Staff</button>
+            </div>
+
+            <div class="participant-form" id="participant-form">
+                <h3>Please enter your team ID:</h3>
+                <input id="part-id" name="part-id" placeholder="Eg: 5gtGhw2">
+                <br>
+                <button class="submit-button" id="part-submit-btn">LOGIN</button>
+                <h4>By logging in, you're agreeing to our <a href="/privacy">Privacy Policy</a>.</h4>
+            </div>
+
+            <div class="staff-form" id="staff-form">
+                <h3>Please enter your login details:</h3>
+                <input type="text" id="staff-id" placeholder="Eg: 5gtGhw2">
+                <input type="password" id="staff-pass" class="password" placeholder="Password">
+                <br>
+                <button class="submit-button" id="staff-submit-btn">LOGIN</button>
+                <h4>By logging in, you're agreeing to our <a href="/privacy">Privacy Policy</a>.</h4>
+            </div>
+        </main>
+
+        <footer>
+            <h2 class="nfp">
+                This is a not-for-profit event, and all money raised is put back into
+                app development/maintenance, upgrading systems and general
+                administrative services
+            </h2>
+            <h2 class="copyright">
+                HASBRO, PARKER BROTHERS, Tonka, Waddington's, the MONOPOLY name and
+                logo, the distinctive design of the game board, the four corner squares,
+                the MR. MONOPOLY name and character, as well as each of the distinctive
+                elements of the board and playing pieces, are trademarks of Hasbro for
+                its property trading game and game equipment. © 1935, 2012 Hasbro.
+            </h2>
+        </footer>
+
+        <script>
+            // TYPE SELECTION
+            const partForm = document.getElementById("participant-form");
+            const staffForm = document.getElementById("staff-form");
+            const typeSelect = document.getElementById("type-sel");
+
+            const staffBtn = document.getElementById("staff-btn");
+            const partBtn = document.getElementById("part-btn");
+
+            staffBtn.onclick = function() {
+                typeSelect.style = "display: none;"
+                staffForm.style = "display: block;"
+            }
+
+            partBtn.onclick = function() {
+                typeSelect.style = "display: none;"
+                partForm.style = "display: block;"
+            }
+        </script>
+
+        <script>
+            // PARTICIPANT LOGIN
+            const login = document.getElementById("part-submit-btn");
+            const value = document.getElementById("part-id");
+
+            function getCookie(cname) {
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            login.onclick = function() {
+                fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "ID": value.value,
+                    })
+                }).then(result => {
+                    result.json().then(res => {
+                        if (res.status == "ok") {
+                            document.cookie = `token=${res.data};path=/`;
+                            window.location = "/dashboard"
+                        } else {
+                            alert("An error occurred!\n\n" + res.error)
+                        }
+                    })
+                })
+            }
+        </script>
+
+        <script>
+            // STAFF LOGIN
+            const stafflogin = document.getElementById("staff-submit-btn");
+            const id = document.getElementById("staff-id");
+            const pass = document.getElementById("staff-pass");
+
+            function getCookie(cname) {
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            stafflogin.onclick = function() {
+                fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/staffLogin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "ID": id.value,
+                        "password": pass.value
+                    })
+                }).then(result => {
+                    result.json().then(res => {
+                        if (res.status == "ok") {
+                            document.cookie = `token=${res.data};path=/`;
+                            window.location = "/staff/dashboard"
+                        } else {
+                            alert("An error occurred!\n\n" + res.error)
+                        }
+                    })
+                })
+            }
+        </script>
+    </body>
+
+</html>

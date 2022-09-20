@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>SMR - Dashboard</title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://gitcdn.link/cdn/Joe-Biondani/Monopoly-Run-Soton-Website/main/dashboard/style.css" />
+        <link rel="shortcut icon" type="image/x-icon" href="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/favicon.ico?v=1658047392905">
+    </head>
+
+    <body>
+        <nav>
+            <img src="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/Smaller.png?v=1658003285975" class="logo" />
+
+            <div class="links">
+                <a class="header-link selected-page-link" href="/dashboard">DASHBOARD</a>
+                <a class="header-link" href="/checkin">CHECK IN</a>
+                <a class="header-link" href="/leaderboard">LEADERBOARD</a>
+                <a class="header-link" href="/support">SUPPORT</a>
+                <a class="header-link" href="/logout">LOGOUT</a>
+            </div>
+        </nav>
+
+        <main>
+            <div class="title-container">
+                <h1 id="welcome" class="purple-title">Welcome, {USERNAME}</h1>
+                <h1 id="money" class="money-purple-title">{MONEY}</h1>
+            </div>
+
+            <ul class="list">
+                <li>
+                    <img src="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/Phone.png?v=1657832760155">
+                    <h3 class="link"><a href="/checkin">Check in</a></h3>
+                </li>
+                <li>
+                    <img src="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/Leaderboard.png?v=1657832758372">
+                    <h3 class="link"><a href="/leaderboard">Leaderboard</a></h3>
+                </li>
+            </ul>
+
+            <ul class="list">
+                <li>
+                    <img>
+                    <h3 class="link"><a href="/history">History</a></h3>
+                </li>
+                <li>
+                    <img src="https://cdn.glitch.global/1df27b13-6588-45d7-979b-2fc6782752e2/Headset.png?v=1657832756863">
+                    <h3 class="link"><a href="/support">Support</a></h3>
+                </li>
+            </ul>
+        </main>
+
+        <footer>
+            <h2 class="nfp">
+                This is a not-for-profit event, and all money raised is put back into
+                app development/maintenance, upgrading systems and general
+                administrative services
+            </h2>
+            <h2 class="copyright">
+                HASBRO, PARKER BROTHERS, Tonka, Waddington's, the MONOPOLY name and
+                logo, the distinctive design of the game board, the four corner squares,
+                the MR. MONOPOLY name and character, as well as each of the distinctive
+                elements of the board and playing pieces, are trademarks of Hasbro for
+                its property trading game and game equipment. © 1935, 2012 Hasbro.
+            </h2>
+        </footer>
+
+        <script>
+            // CHECK LOGIN
+            function getCookie(cname) {
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            let cookie = getCookie("token");
+            fetch('https://Soton-Monopoly-Run-Users-API.aviationjoe.repl.co/checkIfLoggedIn', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "token": cookie,
+                })
+            }).then(result => {
+                result.json().then(res => {
+                    if (res.status != "ok") {
+                        window.location = "/login"
+                    } else {
+                        document.getElementById("welcome").innerHTML = "Welcome, " + res.data.TeamName
+                        fetch('https://Soton-Monopoly-Run-Game-API.aviationjoe.repl.co/getTeamInfo', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                "ID": res.data.UserID,
+                            })
+                        }).then(result2 => {
+                            result2.json().then(res2 => {
+                                if (res2.status != "ok") {
+                                    window.location = "/login"
+                                } else {
+                                    document.getElementById("money").innerHTML = "£" + res2.data.Money
+                                }
+                            })
+                        }).catch(() => {
+                            window.location = "/login"
+                        })
+                    }
+                })
+            }).catch(() => {
+                window.location = "/login"
+            })
+        </script>
+    </body>
+
+</html>
